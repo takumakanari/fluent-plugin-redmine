@@ -16,13 +16,13 @@ module Fluent
     config_param :priority_id, :integer
     config_param :subject, :string, :default => "Fluent::RedmineOutput plugin"
     config_param :description, :string, :default => ""
+    config_param :debug_http, :bool, :default => false
 
     def initialize
       super
       require "json"
-      require "net/http"
     end
-    
+
     def configure(conf)
       super
 
@@ -32,6 +32,14 @@ module Fluent
 
       if @api_key.nil?
         raise Fluent::ConfigError, "'api_key' must be specified."
+      end
+
+      @use_ssl = (@url =~ /^https:/) ? true : false
+
+      if @use_ssl
+        require "net/https"
+      else
+        require "net/http"
       end
 
       @subject_expander = TemplateExpander.new(@subject)
@@ -68,7 +76,17 @@ module Fluent
         initheader = @redmine_request_header
       )
       request.body = JSON.generate(make_payload(subject, desc))
-      Net::HTTP.new(@redmine_uri.host, @redmine_uri.port).start do |http|
+
+      client = Net::HTTP.new(@redmine_uri.host, @redmine_uri.port)
+      if @use_ssl
+        client.use_ssl = true
+        client.verify_mode = OpenSSL::SSL::VERIFY_NONE # TODO support other verify mode
+      end
+      if @debug_http
+        client.set_debug_output($stderr)
+      end
+
+      client.start do |http|
         res = http.request(request)
         unless res.code.to_i == 201
           raise Exception.new("Error: #{res.code}, #{res.body}")

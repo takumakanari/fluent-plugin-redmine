@@ -20,6 +20,18 @@ class RedmineOutputTest < Test::Unit::TestCase
     description this is description %{d1} - %{d2} - %{d3}
   ]
 
+  CONFIG_HTTPS = %[
+    type redmine
+    url https://localhost:4000
+    api_key test-api-key
+    tag_key test
+    project_id 1
+    tracker_id 2
+    priority_id 3
+    subject awesome
+    description this is description %{d1} - %{d2} - %{d3}
+  ]
+
   CONFIG_TO_FORMAT = %[
     type redmine
     url http://localhost:4000
@@ -101,10 +113,22 @@ class RedmineOutputTest < Test::Unit::TestCase
     Fluent::Test::OutputTestDriver.new(Fluent::RedmineOutput, tag).configure(conf)
   end
 
-  def test_configure
+  def test_configure_http
     p = nil
     assert_nothing_raised { p = create_driver(CONFIG_DEFAULT).instance }
     assert_equal "http://localhost:4000", p.url
+    assert_equal "test", p.tag_key
+    assert_equal "1", p.project_id
+    assert_equal 2, p.tracker_id
+    assert_equal 3, p.priority_id
+    assert_equal "awesome", p.subject
+    assert_equal "this is description %{d1} - %{d2} - %{d3}", p.description
+  end
+
+  def test_configure_https
+    p = nil
+    assert_nothing_raised { p = create_driver(CONFIG_HTTPS).instance }
+    assert_equal "https://localhost:4000", p.url
     assert_equal "test", p.tag_key
     assert_equal "1", p.project_id
     assert_equal 2, p.tracker_id
