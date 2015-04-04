@@ -28,7 +28,6 @@ Here is example settings:
     type redmine
     url http://localhost:3000/
     api_key 40a96d43a98b1626c542b04c5780f881c1e1a969
-    project_id apitest
     tracker_id 1
     priority_id 3
     subject The new issue %{issue}
@@ -37,7 +36,9 @@ Here is example settings:
 
 and here is optional configuration:
 
-    tag_key my_tag # 'tag' is used by default
+    project_id myproject # projectId of redmine
+    tag_key my_tag       # 'tag' is used by default
+    debug_http true      # set debug_http=true of Net::HTTP module, false is used by default
 
 ### placeholders
 
