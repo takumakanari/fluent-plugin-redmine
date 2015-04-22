@@ -12,6 +12,7 @@ module Fluent
     config_param :api_key, :string, :default => nil
     config_param :tag_key, :string, :default => "tag"
     config_param :project_id, :string, :default => nil
+    config_param :category_id, :string, :default => nil
     config_param :tracker_id, :integer
     config_param :priority_id, :integer
     config_param :subject, :string, :default => "Fluent::RedmineOutput plugin"
@@ -101,6 +102,7 @@ module Fluent
           :project_id => @project_id,
           :tracker_id => @tracker_id,
           :priority_id => @priority_id,
+          :category_id => @category_id,
           :subject => subject,
           :description => desc
         }
