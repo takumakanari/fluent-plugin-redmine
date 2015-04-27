@@ -12,9 +12,11 @@ module Fluent
     config_param :api_key, :string, :default => nil
     config_param :tag_key, :string, :default => "tag"
     config_param :project_id, :string, :default => nil
-    config_param :category_id, :string, :default => nil
+    config_param :category_id, :integer, :default => nil
+    config_param :category_id_key, :string, :default => nil
     config_param :tracker_id, :integer
     config_param :priority_id, :integer
+    config_param :priority_id_key, :string, :default => nil
     config_param :subject, :string, :default => "Fluent::RedmineOutput plugin"
     config_param :description, :string, :default => ""
     config_param :debug_http, :bool, :default => false
@@ -54,16 +56,11 @@ module Fluent
     end
 
     def emit(tag, es, chain)
-      bulk = []
-      es.each do |time,record|
-        bulk << [
-          @subject_expander.bind(make_record(tag, record)),
-          @description_expander.bind(make_record(tag, record))
-        ]
-      end
-      bulk.each do |subject, desc|
+      es.each do |time, record|
+        subject = @subject_expander.bind(make_record(tag, record))
+        desc = @description_expander.bind(make_record(tag, record))
         begin
-          submit_ticket(subject, desc)
+          submit_ticket(subject, desc, record)
         rescue => e
           log.warn "out_redmine: failed to create ticket to #{@redmine_uri}, subject: #{subject}, description: #{desc}, error_class: #{e.class}, error_message: #{e.message}, error_backtrace: #{e.backtrace.first}"
         end
@@ -71,12 +68,12 @@ module Fluent
       chain.next
     end
 
-    def submit_ticket(subject, desc)
+    def submit_ticket(subject, desc, record)
       request = Net::HTTP::Post.new(
         @redmine_uri.request_uri,
         initheader = @redmine_request_header
       )
-      request.body = JSON.generate(make_payload(subject, desc))
+      request.body = JSON.generate(make_payload(subject, desc, record))
 
       client = Net::HTTP.new(@redmine_uri.host, @redmine_uri.port)
       if @use_ssl
@@ -96,13 +93,15 @@ module Fluent
       end
     end
 
-    def make_payload(subject, desc)
+    def make_payload(subject, desc, record)
+      priority_id = @priority_id_key.nil? ? @priority_id : (record[@priority_id_key] || @priority_id).to_i
+      category_id = @category_id_key.nil? ? @category_id : (record[@category_id_key] || @category_id).to_i
       {
         :issue => {
           :project_id => @project_id,
           :tracker_id => @tracker_id,
-          :priority_id => @priority_id,
-          :category_id => @category_id,
+          :priority_id => priority_id,
+          :category_id => category_id,
           :subject => subject,
           :description => desc
         }
