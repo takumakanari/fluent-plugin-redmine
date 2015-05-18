@@ -16,6 +16,22 @@ class RedmineOutputTest < Test::Unit::TestCase
     project_id 1
     tracker_id 2
     priority_id 3
+    category_id 4
+    subject awesome
+    description this is description %{d1} - %{d2} - %{d3}
+  ]
+
+  CONFIG_WITH_PROPERTY_ALIAS_KEYS = %[
+    type redmine
+    url http://localhost:4000
+    api_key test-api-key
+    tag_key test
+    project_id 1
+    tracker_id 2
+    priority_id 3
+    category_id 4
+    priority_id_key key_of_priority_id
+    category_id_key key_of_category_id
     subject awesome
     description this is description %{d1} - %{d2} - %{d3}
   ]
@@ -121,8 +137,18 @@ class RedmineOutputTest < Test::Unit::TestCase
     assert_equal "1", p.project_id
     assert_equal 2, p.tracker_id
     assert_equal 3, p.priority_id
+    assert_equal 4, p.category_id
     assert_equal "awesome", p.subject
     assert_equal "this is description %{d1} - %{d2} - %{d3}", p.description
+    assert_nil p.priority_id_key
+    assert_nil p.category_id_key
+  end
+
+  def test_configure_property_alias_keys
+    p = nil
+    assert_nothing_raised { p = create_driver(CONFIG_WITH_PROPERTY_ALIAS_KEYS).instance }
+    assert_equal "key_of_priority_id", p.priority_id_key
+    assert_equal "key_of_category_id", p.category_id_key
   end
 
   def test_configure_https
@@ -163,12 +189,35 @@ CONFIG
 
   def test_make_payload
     p = create_driver(CONFIG_DEFAULT).instance
-    ret = p.make_payload("subject", "description")
+    record = {
+      "name" => "John",
+      "age" => 25,
+      "message" => "this is message!"
+    }
+    ret = p.make_payload("subject", "description", record)
     assert_equal "subject", ret[:issue][:subject]
     assert_equal "description", ret[:issue][:description]
     assert_equal p.project_id, ret[:issue][:project_id]
     assert_equal p.tracker_id, ret[:issue][:tracker_id]
     assert_equal p.priority_id, ret[:issue][:priority_id]
+  end
+
+  def test_make_payload_with_alias_keys
+    p = create_driver(CONFIG_WITH_PROPERTY_ALIAS_KEYS).instance
+    record = {
+      "key_of_priority_id" => "123",
+      "key_of_category_id" => "456"
+    }
+    ret = p.make_payload("subject", "description", record)
+    assert_equal 123, ret[:issue][:priority_id]
+    assert_equal 456, ret[:issue][:category_id]
+  end
+
+  def test_make_payload_with_alias_keys_use_default_ids
+    p = create_driver(CONFIG_WITH_PROPERTY_ALIAS_KEYS).instance
+    ret = p.make_payload("subject", "description", {})
+    assert_equal 3, ret[:issue][:priority_id]
+    assert_equal 4, ret[:issue][:category_id]
   end
 
   def test_emit
