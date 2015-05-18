@@ -36,10 +36,13 @@ Here is example settings:
 
 and here is optional configuration:
 
-    project_id  myproject # projectId of redmine
-    category_id 70        # categoryId of tickets
-    tag_key my_ tag       # 'tag' is used by default
-    debug_http  true      # set debug_http=true of Net::HTTP module, false is used by default
+    project_id  myproject              # projectId of redmine
+    category_id 70                     # categoryId of tickets
+    project_id_key key_of_priority_id  # value in record for priorityId
+    category_id_key key_of_category_id # value in record for categoryId
+    tag_key my_ tag                    # 'tag' is used by default
+    debug_http  true                   # set debug_http=true of Net::HTTP module, false is used by default
+
 
 ### placeholders
 
