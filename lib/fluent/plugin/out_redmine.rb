@@ -1,6 +1,6 @@
 module Fluent
 
-  class RedmineOutput < Output
+  class RedmineOutput < BufferedOutput
     Fluent::Plugin.register_output('redmine', self)
 
     # Define `log` method for v0.10.42 or earlier
@@ -55,17 +55,21 @@ module Fluent
       }
     end
 
-    def emit(tag, es, chain)
-      es.each do |time, record|
+    def format(tag, time, record)
+      [tag, time, record].to_msgpack
+    end
+
+    def write(chunk)
+      chunk.msgpack_each do |tag, time, record|
         subject = @subject_expander.bind(make_record(tag, record))
         desc = @description_expander.bind(make_record(tag, record))
         begin
           submit_ticket(subject, desc, record)
         rescue => e
-          log.warn "out_redmine: failed to create ticket to #{@redmine_uri}, subject: #{subject}, description: #{desc}, error_class: #{e.class}, error_message: #{e.message}, error_backtrace: #{e.backtrace.first}"
+          log.error "out_redmine: failed to create ticket to #{@redmine_uri}, subject: #{subject}, description: #{desc}, error_class: #{e.class}, error_message: #{e.message}, error_backtrace: #{e.backtrace.first}"
+          raise e
         end
       end
-      chain.next
     end
 
     def submit_ticket(subject, desc, record)
