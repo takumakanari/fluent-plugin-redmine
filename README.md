@@ -2,7 +2,7 @@
 
 ## Overview
 
-Output plugin for [Fluentd](http://fluentd.org). Create and regist a ticket to redmine from messages.
+Output plugin for [Fluentd](http://fluentd.org). Create and register a ticket to redmine from messages.
 
 ## Installation
 
