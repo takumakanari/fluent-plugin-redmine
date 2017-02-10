@@ -7,8 +7,8 @@ Gem::Specification.new do |spec|
   spec.version       = "0.5.0"
   spec.authors       = ["Takuma kanari"]
   spec.email         = ["chemtrails.t@gmail.com"]
-  spec.summary       = %q{Output filter plugin to create ticket in redmine}
-  spec.description   = %q{Output filter plugin to create ticket in redmine}
+  spec.summary       = %q{Fluentd output plugin to create ticket in redmine}
+  spec.description   = %q{Fluentd output plugin to create ticket in redmine}
   spec.homepage      = "https://github.com/takumakanari"
   spec.rubyforge_project = "fluent-plugin-redmine"
 
