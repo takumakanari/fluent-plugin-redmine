@@ -21,11 +21,11 @@ $ sudo td-agent-gem install fluent-plugin-redmine
 
 ## Usage
 
-In your fluentd configration, use type redmine. 
+In your fluentd configration, use `@type redmine`.
 
 Here is example settings:
 
-    type redmine
+    @type redmine
     url http://localhost:3000/
     api_key 40a96d43a98b1626c542b04c5780f881c1e1a969
     tracker_id 1
