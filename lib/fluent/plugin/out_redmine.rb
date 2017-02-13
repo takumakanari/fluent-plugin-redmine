@@ -9,7 +9,7 @@ module Fluent
     end
 
     config_param :url, :string, :default => nil
-    config_param :api_key, :string, :default => nil
+    config_param :api_key, :string, :default => nil, :secret => true
     config_param :tag_key, :string, :default => "tag"
     config_param :project_id, :string, :default => nil
     config_param :category_id, :integer, :default => nil
