@@ -126,7 +126,7 @@ class RedmineOutputTest < Test::Unit::TestCase
   end
 
   def create_driver(conf=CONFIG_OUT_KEYS,tag='test')
-    Fluent::Test::OutputTestDriver.new(Fluent::RedmineOutput, tag).configure(conf)
+    Fluent::Test::BufferedOutputTestDriver.new(Fluent::RedmineOutput, tag).configure(conf)
   end
 
   def test_configure_http
@@ -244,4 +244,3 @@ CONFIG
   end
 
 end
-
