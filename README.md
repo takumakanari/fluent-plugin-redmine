@@ -25,13 +25,15 @@ In your fluentd configration, use `@type redmine`.
 
 Here is example settings:
 
-    @type redmine
-    url http://localhost:3000/
-    api_key 40a96d43a98b1626c542b04c5780f881c1e1a969
-    tracker_id 1
-    priority_id 3
-    subject The new issue %{issue}
-    description This is the new issue called %{name}. we cought new exception %{error}!
+    <match **>
+      @type redmine
+      url http://localhost:3000/
+      api_key 40a96d43a98b1626c542b04c5780f881c1e1a969
+      tracker_id 1
+      priority_id 3
+      subject The new issue %{issue}
+      description This is the new issue called %{name}. we cought new exception %{error}!
+    </match>
 
 
 and here is optional configuration:
