@@ -9,7 +9,7 @@ Gem::Specification.new do |spec|
   spec.email         = ["chemtrails.t@gmail.com"]
   spec.summary       = %q{Fluentd output plugin to create ticket in redmine}
   spec.description   = %q{Fluentd output plugin to create ticket in redmine}
-  spec.homepage      = "https://github.com/takumakanari"
+  spec.homepage      = "https://github.com/takumakanari/fluent-plugin-redmine"
   spec.rubyforge_project = "fluent-plugin-redmine"
 
   spec.files         = `git ls-files -z`.split("\x0")
