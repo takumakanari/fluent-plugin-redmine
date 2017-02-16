@@ -8,17 +8,40 @@ module Fluent
       define_method("log") { $log }
     end
 
+    desc "Redmine url"
     config_param :url, :string, :default => nil
+
+    desc "Redmine api key"
     config_param :api_key, :string, :default => nil, :secret => true
+
+    desc "Key name in the record for tag"
     config_param :tag_key, :string, :default => "tag"
+
+    desc "Redmine project id"
     config_param :project_id, :string, :default => nil
+
+    desc "Redmine category id"
     config_param :category_id, :integer, :default => nil
+
+    desc "Key name in the record for Redmine category id"
     config_param :category_id_key, :string, :default => nil
+
+    desc "Redmine tracker id"
     config_param :tracker_id, :integer
+
+    desc "Redmine priority id"
     config_param :priority_id, :integer
+
+    desc "Key name in the record for Redmine priority id"
     config_param :priority_id_key, :string, :default => nil
+
+    desc "Ticket title"
     config_param :subject, :string, :default => "Fluent::RedmineOutput plugin"
+
+    desc "Ticket description"
     config_param :description, :string, :default => ""
+
+    desc "If true, show debug message of http operations"
     config_param :debug_http, :bool, :default => false
 
     def initialize
