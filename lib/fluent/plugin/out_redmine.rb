@@ -9,40 +9,40 @@ module Fluent
     end
 
     desc "Redmine url"
-    config_param :url, :string, :default => nil
+    config_param :url, :string, default: nil
 
     desc "Redmine api key"
-    config_param :api_key, :string, :default => nil, :secret => true
+    config_param :api_key, :string, default: nil, secret: true
 
     desc "Key name in the record for tag"
-    config_param :tag_key, :string, :default => "tag"
+    config_param :tag_key, :string, default: "tag"
 
     desc "Redmine project id"
-    config_param :project_id, :string, :default => nil
+    config_param :project_id, :string, default: nil
 
     desc "Redmine category id"
-    config_param :category_id, :integer, :default => nil
+    config_param :category_id, :integer, default: nil
 
     desc "Key name in the record for Redmine category id"
-    config_param :category_id_key, :string, :default => nil
+    config_param :category_id_key, :string, default: nil
 
     desc "Redmine tracker id"
-    config_param :tracker_id, :integer
+    config_param :tracker_id, :integer, default: nil
 
     desc "Redmine priority id"
-    config_param :priority_id, :integer
+    config_param :priority_id, :integer, default: nil
 
     desc "Key name in the record for Redmine priority id"
-    config_param :priority_id_key, :string, :default => nil
+    config_param :priority_id_key, :string, default: nil
 
     desc "Ticket title"
-    config_param :subject, :string, :default => "Fluent::RedmineOutput plugin"
+    config_param :subject, :string, default: "Fluent::RedmineOutput plugin"
 
     desc "Ticket description"
-    config_param :description, :string, :default => ""
+    config_param :description, :string, default: ""
 
     desc "If true, show debug message of http operations"
-    config_param :debug_http, :bool, :default => false
+    config_param :debug_http, :bool, default: false
 
     def initialize
       super
@@ -123,16 +123,15 @@ module Fluent
     def make_payload(subject, desc, record)
       priority_id = @priority_id_key.nil? ? @priority_id : (record[@priority_id_key] || @priority_id).to_i
       category_id = @category_id_key.nil? ? @category_id : (record[@category_id_key] || @category_id).to_i
-      {
-        :issue => {
-          :project_id => @project_id,
-          :tracker_id => @tracker_id,
-          :priority_id => priority_id,
-          :category_id => category_id,
-          :subject => subject,
-          :description => desc
-        }
+      issue = {
+        project_id: @project_id,
+        category_id: category_id,
+        subject: subject,
+        description: desc
       }
+      issue[:tracker_id] = @tracker_id unless @tracker_id.nil?
+      issue[:priority_id] = priority_id unless priority_id.nil?
+      { issue: issue }
     end
 
     private

@@ -21,6 +21,17 @@ class RedmineOutputTest < Test::Unit::TestCase
     description this is description %{d1} - %{d2} - %{d3}
   ]
 
+  CONFIG_WITHOUT_TRACKER_ID_AND_PRIORITY_ID = %[
+    type redmine
+    url http://localhost:4000
+    api_key test-api-key
+    tag_key test
+    project_id 1
+    category_id 4
+    subject awesome
+    description this is description %{d1} - %{d2} - %{d3}
+  ]
+
   CONFIG_WITH_PROPERTY_ALIAS_KEYS = %[
     type redmine
     url http://localhost:4000
@@ -199,6 +210,21 @@ CONFIG
     assert_equal "description", ret[:issue][:description]
     assert_equal p.project_id, ret[:issue][:project_id]
     assert_equal p.tracker_id, ret[:issue][:tracker_id]
+    assert_equal p.priority_id, ret[:issue][:priority_id]
+  end
+
+  def test_make_payload_without_tracker_id_and_priority_id
+    p = create_driver(CONFIG_WITHOUT_TRACKER_ID_AND_PRIORITY_ID).instance
+    record = {
+      "name" => "John",
+      "age" => 25,
+      "message" => "this is message!"
+    }
+    ret = p.make_payload("subject", "description", record)
+    assert_equal "subject", ret[:issue][:subject]
+    assert_equal "description", ret[:issue][:description]
+    assert_false ret[:issue].key?(:priority_id)
+    assert_false ret[:issue].key?(:tracker_id)
     assert_equal p.priority_id, ret[:issue][:priority_id]
   end
 
