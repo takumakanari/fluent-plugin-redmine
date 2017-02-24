@@ -32,6 +32,17 @@ class RedmineOutputTest < Test::Unit::TestCase
     description this is description %{d1} - %{d2} - %{d3}
   ]
 
+  CONFIG_WITH_CUSTOM_FIELDS = %[
+    type redmine
+    url http://localhost:4000
+    api_key test-api-key
+    tag_key test
+    project_id 1
+    subject awesome
+    custom_fields [{"id" : 1, "value" : "awesome"}]
+    description this is description %{d1} - %{d2} - %{d3}
+  ]
+
   CONFIG_WITH_PROPERTY_ALIAS_KEYS = %[
     type redmine
     url http://localhost:4000
@@ -43,6 +54,7 @@ class RedmineOutputTest < Test::Unit::TestCase
     category_id 4
     priority_id_key key_of_priority_id
     category_id_key key_of_category_id
+    custom_fields_key key_of_custom_fields
     subject awesome
     description this is description %{d1} - %{d2} - %{d3}
   ]
@@ -160,6 +172,7 @@ class RedmineOutputTest < Test::Unit::TestCase
     assert_nothing_raised { p = create_driver(CONFIG_WITH_PROPERTY_ALIAS_KEYS).instance }
     assert_equal "key_of_priority_id", p.priority_id_key
     assert_equal "key_of_category_id", p.category_id_key
+    assert_equal "key_of_custom_fields", p.custom_fields_key
   end
 
   def test_configure_https
@@ -211,6 +224,20 @@ CONFIG
     assert_equal p.project_id, ret[:issue][:project_id]
     assert_equal p.tracker_id, ret[:issue][:tracker_id]
     assert_equal p.priority_id, ret[:issue][:priority_id]
+    assert_false ret[:issue].key?(:custom_fields)
+  end
+
+  def test_make_payload_with_custom_fields
+    p = create_driver(CONFIG_WITH_CUSTOM_FIELDS).instance
+    record = {
+      "name" => "John",
+      "age" => 25,
+      "message" => "this is message!"
+    }
+    ret = p.make_payload("subject", "description", record)
+    assert_equal 1, ret[:issue][:custom_fields].size
+    assert_equal 1, ret[:issue][:custom_fields].first["id"]
+    assert_equal "awesome", ret[:issue][:custom_fields].first["value"]
   end
 
   def test_make_payload_without_tracker_id_and_priority_id
@@ -230,13 +257,16 @@ CONFIG
 
   def test_make_payload_with_alias_keys
     p = create_driver(CONFIG_WITH_PROPERTY_ALIAS_KEYS).instance
+    custom_fields = [{"id" => 1, "value" => "awesome"}]
     record = {
       "key_of_priority_id" => "123",
-      "key_of_category_id" => "456"
+      "key_of_category_id" => "456",
+      "key_of_custom_fields" => custom_fields
     }
     ret = p.make_payload("subject", "description", record)
     assert_equal 123, ret[:issue][:priority_id]
     assert_equal 456, ret[:issue][:category_id]
+    assert_equal custom_fields, ret[:issue][:custom_fields]
   end
 
   def test_make_payload_with_alias_keys_use_default_ids
@@ -244,6 +274,7 @@ CONFIG
     ret = p.make_payload("subject", "description", {})
     assert_equal 3, ret[:issue][:priority_id]
     assert_equal 4, ret[:issue][:category_id]
+    assert_false ret[:issue].key?(:custom_fields)
   end
 
   def test_emit
