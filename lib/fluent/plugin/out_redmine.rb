@@ -44,6 +44,12 @@ module Fluent
     desc "If true, show debug message of http operations"
     config_param :debug_http, :bool, default: false
 
+    desc "Redmine custom fields, array of hash with id, value"
+    config_param :custom_fields, :array, default: []
+
+    desc "Key name in the record for Redmine custom fields"
+    config_param :custom_fields_key, :string, default: nil
+
     def initialize
       super
       require "json"
@@ -123,6 +129,7 @@ module Fluent
     def make_payload(subject, desc, record)
       priority_id = @priority_id_key.nil? ? @priority_id : (record[@priority_id_key] || @priority_id).to_i
       category_id = @category_id_key.nil? ? @category_id : (record[@category_id_key] || @category_id).to_i
+      custom_fields = @custom_fields_key.nil? ? @custom_fields : (record[@custom_fields_key] || [])
       issue = {
         project_id: @project_id,
         category_id: category_id,
@@ -131,6 +138,7 @@ module Fluent
       }
       issue[:tracker_id] = @tracker_id unless @tracker_id.nil?
       issue[:priority_id] = priority_id unless priority_id.nil?
+      issue[:custom_fields] = custom_fields unless custom_fields.empty?
       { issue: issue }
     end
 
