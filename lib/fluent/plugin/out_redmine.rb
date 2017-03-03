@@ -3,11 +3,6 @@ module Fluent
   class RedmineOutput < BufferedOutput
     Fluent::Plugin.register_output('redmine', self)
 
-    # Define `log` method for v0.10.42 or earlier
-    unless method_defined?(:log)
-      define_method("log") { $log }
-    end
-
     desc "Redmine url"
     config_param :url, :string, default: nil
 
