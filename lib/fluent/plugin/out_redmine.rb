@@ -9,10 +9,10 @@ module Fluent
     end
 
     desc "Redmine url"
-    config_param :url, :string, default: nil
+    config_param :url, :string
 
     desc "Redmine api key"
-    config_param :api_key, :string, default: nil, secret: true
+    config_param :api_key, :string, secret: true
 
     desc "Key name in the record for tag"
     config_param :tag_key, :string, default: "tag"
@@ -57,14 +57,6 @@ module Fluent
 
     def configure(conf)
       super
-
-      if @url.nil?
-        raise Fluent::ConfigError, "'url' must be specified."
-      end
-
-      if @api_key.nil?
-        raise Fluent::ConfigError, "'api_key' must be specified."
-      end
 
       @use_ssl = (@url =~ /^https:/) ? true : false
 
