@@ -160,7 +160,7 @@ module Fluent
 
       def initialize(template)
         @template = template
-        @placeholders = Array.new
+        @placeholders = []
         @template.gsub(/%{([^}]+)}/) do
           @placeholders << $1 unless @placeholders.include?($1)
         end
