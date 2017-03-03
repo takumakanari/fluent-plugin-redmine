@@ -145,7 +145,7 @@ module Fluent
     private
 
     def make_record(tag, record)
-      dest = Hash.new
+      dest = {}
       dest[:"#{@tag_key}"] = tag
       record.map do |key, value|
         dest[:"#{key}"] = value
