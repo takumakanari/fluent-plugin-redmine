@@ -140,7 +140,7 @@ module Fluent
     private
 
     def make_record(tag, record)
-      dest = Hash.new
+      dest = {}
       dest[:"#{@tag_key}"] = tag
       record.map do |key, value|
         dest[:"#{key}"] = value
@@ -151,11 +151,11 @@ module Fluent
     class TemplateExpander
       attr_reader :template, :placeholders
 
-      Empty = ''
+      EMPTY = ''
 
       def initialize(template)
         @template = template
-        @placeholders = Array.new
+        @placeholders = []
         @template.gsub(/%{([^}]+)}/) do
           @placeholders << $1 unless @placeholders.include?($1)
         end
@@ -164,7 +164,7 @@ module Fluent
       def bind(values)
         @placeholders.each do |key|
           key_ = :"#{key}"
-          values[key_] = Empty unless values.key?(key_)
+          values[key_] = EMPTY unless values.key?(key_)
         end
         @template % values
       end
