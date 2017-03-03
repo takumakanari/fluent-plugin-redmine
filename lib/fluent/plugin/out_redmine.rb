@@ -156,7 +156,7 @@ module Fluent
     class TemplateExpander
       attr_reader :template, :placeholders
 
-      Empty = ''
+      EMPTY = ''
 
       def initialize(template)
         @template = template
@@ -169,7 +169,7 @@ module Fluent
       def bind(values)
         @placeholders.each do |key|
           key_ = :"#{key}"
-          values[key_] = Empty unless values.key?(key_)
+          values[key_] = EMPTY unless values.key?(key_)
         end
         @template % values
       end
