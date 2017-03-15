@@ -51,7 +51,7 @@ module Fluent
     def configure(conf)
       super
 
-      @use_ssl = (@url =~ /^https:/) ? true : false
+      @use_ssl = @url.start_with?("https:")
 
       @subject_expander = TemplateExpander.new(@subject)
       @description_expander = TemplateExpander.new(@description)
