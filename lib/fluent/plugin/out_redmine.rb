@@ -99,7 +99,7 @@ module Fluent
       client.start do |http|
         res = http.request(request)
         unless res.code.to_i == 201
-          raise Exception.new("Error: #{res.code}, #{res.body}")
+          raise Error, "Error: #{res.code}, #{res.body}"
         end
         return res.body
       end
@@ -154,6 +154,7 @@ module Fluent
       end
     end
 
+    class Error < StandardError
+    end
   end
-
 end
