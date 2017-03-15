@@ -1,3 +1,6 @@
+require "json"
+require "net/http"
+
 module Fluent
 
   class RedmineOutput < BufferedOutput
@@ -45,21 +48,10 @@ module Fluent
     desc "Key name in the record for Redmine custom fields"
     config_param :custom_fields_key, :string, default: nil
 
-    def initialize
-      super
-      require "json"
-    end
-
     def configure(conf)
       super
 
       @use_ssl = (@url =~ /^https:/) ? true : false
-
-      if @use_ssl
-        require "net/https"
-      else
-        require "net/http"
-      end
 
       @subject_expander = TemplateExpander.new(@subject)
       @description_expander = TemplateExpander.new(@description)
