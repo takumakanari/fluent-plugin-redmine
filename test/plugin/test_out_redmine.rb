@@ -121,7 +121,7 @@ class RedmineOutputTest < Test::Unit::TestCase
 
     cv = ConditionVariable.new
 
-    watcher = Thread.new {
+    Thread.new {
       connected = false
       while not connected
         begin
