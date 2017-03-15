@@ -83,7 +83,7 @@ module Fluent
     def submit_ticket(subject, desc, record)
       request = Net::HTTP::Post.new(
         @redmine_uri.request_uri,
-        initheader = @redmine_request_header
+        @redmine_request_header
       )
       request.body = JSON.generate(make_payload(subject, desc, record))
 
