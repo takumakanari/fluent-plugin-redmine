@@ -1,9 +1,9 @@
 require "json"
 require "net/http"
 
-module Fluent
+module Fluent::Plugin
 
-  class RedmineOutput < BufferedOutput
+  class RedmineOutput < Fluent::Plugin::Output
     Fluent::Plugin.register_output('redmine', self)
 
     desc "Redmine url"
@@ -48,6 +48,11 @@ module Fluent
     desc "Key name in the record for Redmine custom fields"
     config_param :custom_fields_key, :string, default: nil
 
+    config_section :buffer do
+      config_set_default :@type, :memory
+      config_set_default :chunk_keys, ["tag"]
+    end
+
     def configure(conf)
       super
 
@@ -63,12 +68,9 @@ module Fluent
       }
     end
 
-    def format(tag, time, record)
-      [tag, time, record].to_msgpack
-    end
-
     def write(chunk)
-      chunk.msgpack_each do |tag, time, record|
+      tag = chunk.metadata.tag
+      chunk.each do |_time, record|
         subject = @subject_expander.bind(make_record(tag, record))
         desc = @description_expander.bind(make_record(tag, record))
         begin

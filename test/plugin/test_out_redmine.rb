@@ -148,8 +148,8 @@ class RedmineOutputTest < Test::Unit::TestCase
     @dummy_redmine.join
   end
 
-  def create_driver(conf=CONFIG_OUT_KEYS,tag='test')
-    Fluent::Test::BufferedOutputTestDriver.new(Fluent::RedmineOutput, tag).configure(conf)
+  def create_driver(conf=CONFIG_OUT_KEYS)
+    Fluent::Test::Driver::Output.new(Fluent::Plugin::RedmineOutput).configure(conf)
   end
 
   def test_configure_http
@@ -277,16 +277,15 @@ CONFIG
     assert_false ret[:issue].key?(:custom_fields)
   end
 
-  def test_emit
+  def test_feed
     d = create_driver(CONFIG_TO_FORMAT)
     record = {
       "name" => "John",
       "age" => 25,
       "message" => "this is message!"
     }
-    t = Time.now
-    d.run do
-      d.emit(record, t.to_i)
+    d.run(default_tag: "test") do
+      d.feed(record)
     end
 
     assert_equal @tickets.size, 1
