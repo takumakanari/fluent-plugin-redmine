@@ -1,6 +1,9 @@
-module Fluent
+require "json"
+require "net/http"
 
-  class RedmineOutput < BufferedOutput
+module Fluent::Plugin
+
+  class RedmineOutput < Fluent::Plugin::Output
     Fluent::Plugin.register_output('redmine', self)
 
     desc "Redmine url"
@@ -45,21 +48,15 @@ module Fluent
     desc "Key name in the record for Redmine custom fields"
     config_param :custom_fields_key, :string, default: nil
 
-    def initialize
-      super
-      require "json"
+    config_section :buffer do
+      config_set_default :@type, :memory
+      config_set_default :chunk_keys, ["tag"]
     end
 
     def configure(conf)
       super
 
-      @use_ssl = (@url =~ /^https:/) ? true : false
-
-      if @use_ssl
-        require "net/https"
-      else
-        require "net/http"
-      end
+      @use_ssl = @url.start_with?("https:")
 
       @subject_expander = TemplateExpander.new(@subject)
       @description_expander = TemplateExpander.new(@description)
@@ -71,12 +68,9 @@ module Fluent
       }
     end
 
-    def format(tag, time, record)
-      [tag, time, record].to_msgpack
-    end
-
     def write(chunk)
-      chunk.msgpack_each do |tag, time, record|
+      tag = chunk.metadata.tag
+      chunk.each do |_time, record|
         subject = @subject_expander.bind(make_record(tag, record))
         desc = @description_expander.bind(make_record(tag, record))
         begin
@@ -91,7 +85,7 @@ module Fluent
     def submit_ticket(subject, desc, record)
       request = Net::HTTP::Post.new(
         @redmine_uri.request_uri,
-        initheader = @redmine_request_header
+        @redmine_request_header
       )
       request.body = JSON.generate(make_payload(subject, desc, record))
 
@@ -107,7 +101,7 @@ module Fluent
       client.start do |http|
         res = http.request(request)
         unless res.code.to_i == 201
-          raise Exception.new("Error: #{res.code}, #{res.body}")
+          raise Error, "Error: #{res.code}, #{res.body}"
         end
         return res.body
       end
@@ -162,6 +156,7 @@ module Fluent
       end
     end
 
+    class Error < StandardError
+    end
   end
-
 end
