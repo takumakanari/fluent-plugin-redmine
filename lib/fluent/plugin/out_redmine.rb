@@ -68,6 +68,10 @@ module Fluent::Plugin
       }
     end
 
+    def multi_workers_ready?
+      true
+    end
+
     def write(chunk)
       tag = chunk.metadata.tag
       chunk.each do |_time, record|
