@@ -126,7 +126,8 @@ class RedmineOutputTest < Test::Unit::TestCase
       while not connected
         begin
           client = Net::HTTP.start("localhost", 4000)
-          connected = client.request_post("/", "").code.to_i == 200
+          header = {'Content-Type' => 'application/x-www-form-urlencoded'}
+          connected = client.request_post("/", "", header).code.to_i == 200
           puts connected
         rescue Errno::ECONNREFUSED
           sleep 0.1
