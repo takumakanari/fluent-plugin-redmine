@@ -1,5 +1,6 @@
 require "json"
 require "net/http"
+require "fluent/plugin/output"
 
 module Fluent::Plugin
 
